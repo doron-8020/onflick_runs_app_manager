@@ -1,0 +1,2617 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONFLICK SHOW CASE</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  :root {
+    --primary: #cc0000;
+    --primary-dark: #990000;
+    --secondary: #1a1a1a;
+    --success: #b30000;
+    --danger: #cc0000;
+    --warning: #ff3333;
+    --bg: #1a1a1a;
+    --card: #ffffff;
+    --border: #333333;
+    --text: #111111;
+    --text-muted: #555555;
+    --gold: #f59e0b;
+    --silver: #94a3b8;
+    --bronze: #b45309;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    direction: rtl;
+  }
+  /* HEADER */
+  .app-header {
+    background: linear-gradient(135deg, #1a1a1a 0%, #cc0000 100%);
+    color: white;
+    padding: 16px 20px;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .app-header h1 { font-size: 1.4rem; font-weight: 700; }
+  .app-header p { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+  /* NAV */
+  .nav-tabs {
+    background: #111111;
+    border-bottom: 1px solid #cc0000;
+    display: flex;
+    overflow-x: auto;
+    position: sticky;
+    top: 68px;
+    z-index: 99;
+    scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    flex: 1;
+    min-width: 80px;
+    padding: 12px 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #888888;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .nav-tab.active { color: #cc0000; border-bottom-color: #cc0000; }
+  .nav-tab:hover:not(.active) { color: #ffffff; background: #222222; }
+  /* PAGES */
+  .page { display: none; padding: 16px; max-width: 700px; margin: 0 auto; background: var(--bg); min-height: 100vh; }
+  .page.active { display: block; }
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 1.2rem; }
+  /* FORMS */
+  .form-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
+  label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+  input, select, textarea {
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    direction: rtl;
+    transition: border-color 0.2s;
+    background: white;
+    color: var(--text);
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+  /* BUTTONS */
+  .btn {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-success:hover { background: #15803d; transform: translateY(-1px); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-secondary { background: var(--bg); color: var(--text); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-warning { background: var(--warning); color: white; }
+  .btn-sm { padding: 5px 10px; font-size: 0.78rem; border-radius: 6px; }
+  .btn-icon { padding: 6px; border-radius: 6px; }
+  /* LISTS */
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-bottom: 7px;
+    transition: background 0.15s;
+  }
+  .list-item:hover { background: #e8edf5; }
+  .list-item-info { flex: 1; }
+  .list-item-name { font-weight: 600; font-size: 0.92rem; }
+  .list-item-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 1px; }
+  .list-actions { display: flex; gap: 5px; }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: white;
+    flex-shrink: 0;
+  }
+  /* COLOR SWATCHES */
+  .color-options { display: flex; gap: 6px; flex-wrap: wrap; }
+  .color-swatch {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: transform 0.15s;
+  }
+  .color-swatch.selected { border-color: var(--text); transform: scale(1.2); }
+  /* LEADERBOARD */
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    transition: background 0.15s;
+  }
+  .lb-row:hover { background: var(--bg); }
+  .lb-row.rank-1 { background: linear-gradient(135deg, #fef9c3, #fef3c7); border: 1.5px solid var(--gold); }
+  .lb-row.rank-2 { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); border: 1.5px solid var(--silver); }
+  .lb-row.rank-3 { background: linear-gradient(135deg, #fef3c7, #fde68a22); border: 1.5px solid var(--bronze); }
+  .rank-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .rank-1 .rank-badge { background: var(--gold); color: white; }
+  .rank-2 .rank-badge { background: var(--silver); color: white; }
+  .rank-3 .rank-badge { background: var(--bronze); color: white; }
+  .rank-other .rank-badge { background: var(--border); color: var(--text-muted); }
+  .lb-name { flex: 1; font-weight: 600; font-size: 0.92rem; }
+  .lb-stats { display: flex; gap: 14px; text-align: center; }
+  .lb-stat { display: flex; flex-direction: column; }
+  .lb-stat-val { font-weight: 700; font-size: 1rem; color: #cc0000; }
+  .lb-stat-label { font-size: 0.68rem; color: var(--text-muted); }
+  /* GAME SESSION */
+  .score-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .score-table th {
+    background: var(--bg);
+    padding: 8px 10px;
+    text-align: center;
+    font-weight: 700;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  .score-table td { padding: 7px 8px; text-align: center; border-bottom: 1px solid var(--border); }
+  .score-table tr:last-child td { border-bottom: none; }
+  .score-table input[type="number"] {
+    width: 60px;
+    padding: 5px 6px;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+  .score-table .player-cell { text-align: right; font-weight: 600; }
+  .score-table .total-cell { font-weight: 700; color: var(--primary); }
+  .score-table tr.winner-row { background: #f0fdf4; }
+  .round-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  /* GAME HISTORY */
+  .game-card {
+    background: #111111;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-right: 4px solid #cc0000;
+  }
+  .game-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .game-card-title { font-weight: 700; font-size: 0.92rem; }
+  .game-card-date { font-size: 0.75rem; color: var(--text-muted); }
+  .game-card-scores { display: flex; gap: 8px; flex-wrap: wrap; }
+  .player-score-chip {
+    background: white;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .player-score-chip .score { font-weight: 700; color: var(--primary); }
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .badge-primary { background: #2a0000; color: #ff6666; }
+  .badge-success { background: #1a0000; color: #ff3333; }
+  .badge-warning { background: #2a1a00; color: #ff6633; }
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.2s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  /* STATS GRID */
+  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+  .stat-box {
+    background: #111111;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #cc0000;
+  }
+  .stat-box-val { font-size: 1.6rem; font-weight: 800; color: #cc0000; }
+  .stat-box-label { font-size: 0.75rem; color: #aaaaaa; margin-top: 2px; }
+  /* HIGHLIGHT */
+  .highlight-box {
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .highlight-gold { background: linear-gradient(135deg, #1a1a1a, #2a0000); border: 2px solid #cc0000; }
+  .highlight-purple { background: linear-gradient(135deg, #111111, #1a1a1a); border: 2px solid #333333; }
+  .highlight-icon { font-size: 2rem; }
+  .highlight-label { font-size: 0.75rem; color: #aaaaaa; }
+  .highlight-name { font-size: 1rem; font-weight: 700; color: #ffffff; }
+  .highlight-score { font-size: 0.85rem; color: #aaaaaa; margin-top: 2px; }
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-muted);
+  }
+  .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .empty-state p { font-size: 0.9rem; }
+  /* CHECKBOX GRID */
+  .checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    background: var(--bg);
+    border-radius: 7px;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.15s;
+  }
+  .checkbox-item.checked { background: #dbeafe; border-color: var(--primary); }
+  .checkbox-item input { display: none; }
+  .checkbox-item span { font-size: 0.85rem; font-weight: 500; }
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+  /* ALERT */
+  .alert {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+  }
+  .alert-info { background: #2a0000; color: #ff9999; border-right: 3px solid #cc0000; }
+  .alert-success { background: #1a0000; color: #ffaaaa; border-right: 3px solid #cc0000; }
+  .alert-warning { background: #2a1a00; color: #ffcc99; border-right: 3px solid #ff6633; }
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: #1e293b;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    z-index: 999;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .section-title { font-size: 0.95rem; font-weight: 700; }
+  /* TAG CHIPS */
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; margin: 2px; }
+  /* RESPONSIVE */
+  @media (max-width: 480px) {
+    .lb-stats { gap: 8px; }
+    .lb-stat-val { font-size: 0.9rem; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-row { flex-direction: column; }
+  }
+  /* ACTIVE GAME INDICATOR */
+  .active-game-banner {
+    background: linear-gradient(135deg, #1a0000, #2a0000);
+    border: 2px solid #cc0000;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .pulse {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse 1.5s infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+  .team-players-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+  .team-player-tag {
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+  }
+  /* SCROLL */
+  .table-scroll { overflow-x: auto; }
+
+  /* =============================================
+     THREE.JS RENDERER CANVAS (injected by JS)
+  ============================================= */
+  #threejs-bg {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: -1 !important;
+    pointer-events: none !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* =============================================
+     LEADERBOARD 3D HOVER DEPTH EFFECT
+  ============================================= */
+  #page-leaderboard .card { perspective: 1200px; }
+  .lb-row {
+    transform-style: preserve-3d;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s, border-color 0.35s;
+    will-change: transform;
+    cursor: default;
+    position: relative;
+    z-index: 0;
+  }
+  .lb-row:hover {
+    transform: translateZ(20px) translateY(-3px) rotateX(-2deg);
+    box-shadow: 0 12px 35px rgba(204,0,0,0.55), 0 0 20px rgba(204,0,0,0.25) !important;
+    border-color: rgba(204,0,0,0.7) !important;
+    z-index: 2;
+  }
+  .lb-row.rank-1:hover { box-shadow: 0 14px 40px rgba(204,0,0,0.75), 0 0 30px rgba(255,50,50,0.4) !important; }
+
+  /* =============================================
+     CARD FLIP ANIMATION
+  ============================================= */
+  #cardFlipOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    pointer-events: none;
+    perspective: 900px;
+    overflow: hidden;
+  }
+  .play-card {
+    position: absolute;
+    width: 54px;
+    height: 80px;
+    transform-style: preserve-3d;
+    border-radius: 6px;
+    animation: cardScatter 0.9s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+  }
+  .play-card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 900;
+    border: 1.5px solid rgba(255,255,255,0.15);
+  }
+  .play-card-front {
+    background: linear-gradient(135deg, #1a0a00, #3d1800);
+    color: #ff6600;
+    box-shadow: 0 0 22px rgba(255,102,0,0.55), 0 0 6px rgba(255,102,0,0.3);
+  }
+  .play-card-back {
+    background: linear-gradient(135deg, #000a18, #001428);
+    color: #0055aa;
+    transform: rotateY(180deg);
+    border-color: rgba(0,170,255,0.2) !important;
+  }
+  @keyframes cardScatter {
+    0%   { transform: translate(-50%,-50%) rotateY(0deg) rotateZ(0deg) scale(0.3); opacity: 0; }
+    30%  { opacity: 1; }
+    60%  { transform: translate(var(--tx), var(--ty)) rotateY(540deg) rotateZ(var(--rz)) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx2), var(--ty2)) rotateY(720deg) rotateZ(var(--rz2)) scale(0); opacity: 0; }
+  }
+
+  /* =============================================
+     GLASS MORPHISM OVERRIDES — ARENA THEME
+  ============================================= */
+  body { background: #000a14 !important; }
+
+  .app-header {
+    background: linear-gradient(90deg,rgba(0,5,15,0.92) 0%,rgba(20,6,0,0.75) 50%,rgba(0,5,15,0.92) 100%) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255,102,0,0.35);
+  }
+  .app-header h1 {
+    text-shadow: 0 0 25px rgba(255,102,0,0.7), 0 0 50px rgba(255,102,0,0.3);
+    letter-spacing: 1px;
+  }
+
+  .nav-tabs {
+    background: rgba(0,4,12,0.88) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,102,0,0.2) !important;
+  }
+  .nav-tab { color: #6688aa !important; }
+  .nav-tab.active { color: #ff6600 !important; border-bottom-color: #ff6600 !important; }
+  .nav-tab:hover:not(.active) { color: #ffaa66 !important; background: rgba(255,102,0,0.08) !important; }
+
+  .page {
+    background: transparent !important;
+  }
+
+  .card {
+    background: rgba(0,6,18,0.78) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,102,0,0.15) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03) !important;
+    color: #dde8f0;
+  }
+  .card-title { color: #fff; }
+  label { color: #7799bb !important; }
+
+  input, select, textarea {
+    background: rgba(0,8,22,0.75) !important;
+    color: #dde8f0 !important;
+    border-color: rgba(255,102,0,0.25) !important;
+  }
+  input::placeholder { color: #334455; }
+  input:focus, select:focus, textarea:focus {
+    border-color: #ff6600 !important;
+    box-shadow: 0 0 0 3px rgba(255,102,0,0.18) !important;
+    background: rgba(0,10,28,0.9) !important;
+  }
+
+  .btn-secondary {
+    background: rgba(0,8,22,0.82) !important;
+    color: #aac8e0 !important;
+    border-color: rgba(204,0,0,0.3) !important;
+  }
+  .btn-secondary:hover {
+    background: rgba(0,30,55,0.9) !important;
+    border-color: rgba(255,102,0,0.4) !important;
+    color: #fff !important;
+  }
+
+  .list-item {
+    background: rgba(0,6,18,0.65) !important;
+    border: 1px solid rgba(255,102,0,0.1);
+  }
+  .list-item:hover { background: rgba(0,15,35,0.8) !important; border-color: rgba(255,102,0,0.25) !important; }
+  .list-item-name { color: #ddeeff !important; }
+  .list-item-sub  { color: #5577aa !important; }
+
+  .checkbox-item {
+    background: rgba(0,6,18,0.65) !important;
+    border-color: rgba(255,102,0,0.12) !important;
+  }
+  .checkbox-item.checked {
+    background: rgba(40,20,0,0.7) !important;
+    border-color: #ff6600 !important;
+  }
+  .checkbox-item span { color: #cce0f5; }
+
+  .lb-row { background: rgba(0,5,15,0.55) !important; }
+  .lb-row.rank-1 {
+    background: linear-gradient(135deg,rgba(60,25,0,0.75),rgba(30,10,0,0.65)) !important;
+    border: 1.5px solid rgba(255,102,0,0.8) !important;
+    box-shadow: 0 0 20px rgba(255,102,0,0.25);
+  }
+  .lb-row.rank-2 {
+    background: rgba(0,8,22,0.55) !important;
+    border: 1.5px solid rgba(120,140,170,0.3) !important;
+  }
+  .lb-row.rank-3 {
+    background: rgba(0,6,18,0.55) !important;
+    border: 1.5px solid rgba(80,60,20,0.35) !important;
+  }
+  .lb-name { color: #cce0f5 !important; }
+  .lb-stat-label { color: #446688 !important; }
+
+  .score-table th {
+    background: rgba(0,6,18,0.85) !important;
+    color: #aaccee;
+    border-bottom-color: rgba(255,102,0,0.25) !important;
+  }
+  .score-table td { border-bottom-color: rgba(255,102,0,0.08) !important; color: #99bbdd; }
+
+  .game-card {
+    background: rgba(0,5,16,0.78) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,102,0,0.12) !important;
+    border-right: 4px solid #ff6600 !important;
+  }
+  .game-card-title { color: #ddeeff; }
+  .game-card-date  { color: #446688 !important; }
+
+  .player-score-chip {
+    background: rgba(0,8,22,0.85) !important;
+    border-color: rgba(255,102,0,0.2) !important;
+    color: #aaccee;
+  }
+
+  .modal-overlay { background: rgba(0,0,0,0.75) !important; }
+  .modal {
+    background: rgba(0,6,18,0.94) !important;
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255,102,0,0.25) !important;
+    color: #dde8f5;
+  }
+  .modal-title { color: #fff; }
+
+  .stat-box {
+    background: rgba(0,6,18,0.78) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-color: rgba(255,102,0,0.3) !important;
+  }
+  .stat-box-label { color: #446688 !important; }
+
+  .active-game-banner {
+    background: linear-gradient(135deg,rgba(30,12,0,0.85),rgba(50,20,0,0.75)) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-color: #ff6600 !important;
+  }
+
+  .highlight-box {
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .highlight-gold   { background: linear-gradient(135deg,rgba(40,18,0,0.85),rgba(60,25,0,0.7)) !important; border-color: #ff6600 !important; }
+  .highlight-purple { background: rgba(0,8,22,0.8) !important; border-color: rgba(0,170,255,0.4) !important; }
+
+  .empty-state { color: #335566 !important; }
+  .empty-state p { color: #335566; }
+
+  .section-title { color: #cce0f5; }
+  .divider { border-top-color: rgba(255,102,0,0.15) !important; }
+
+  #toast { background: rgba(0,8,22,0.97) !important; border: 1px solid #ff6600; color: #ff9944; }
+
+  .color-swatch.selected { border-color: #ff6600 !important; }
+
+  /* =============================================
+     LIVE DISPLAY VIEW
+  ============================================= */
+  #displayOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,4,14,0.90);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 500;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #displayOverlay.open { display: flex; }
+
+  /* Display Header */
+  .dv-header {
+    background: linear-gradient(90deg, #0a0a0a 0%, #1a0000 50%, #0a0a0a 100%);
+    border-bottom: 2px solid #cc0000;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .dv-logo {
+    font-size: 1.3rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #fff;
+    text-transform: uppercase;
+  }
+  .dv-logo span { color: #cc0000; }
+  .dv-controls { display: flex; gap: 8px; align-items: center; }
+  .dv-toggle-btn {
+    background: #1a1a1a;
+    border: 1.5px solid #cc0000;
+    color: #fff;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dv-toggle-btn:hover { background: #cc0000; }
+  .dv-toggle-btn.active-mode { background: #cc0000; }
+  .dv-close-btn {
+    background: #2a0000;
+    border: 1.5px solid #cc0000;
+    color: #ff6666;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .dv-close-btn:hover { background: #cc0000; color: white; }
+
+  /* Display Body */
+  .dv-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: #cc0000 #111;
+  }
+  .dv-body::-webkit-scrollbar { width: 5px; }
+  .dv-body::-webkit-scrollbar-track { background: #111; }
+  .dv-body::-webkit-scrollbar-thumb { background: #cc0000; border-radius: 5px; }
+
+  /* Section title */
+  .dv-section-title {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #cc0000;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+  }
+  .dv-section-title::before,
+  .dv-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #cc0000);
+  }
+  .dv-section-title::after { background: linear-gradient(to left, transparent, #cc0000); }
+
+  /* ===== DESKTOP MODE ===== */
+  .dv-desktop { display: block; }
+  .dv-mobile  { display: none; }
+
+  /* Desktop: two columns side by side */
+  .dv-desktop .dv-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .dv-desktop .dv-col-title {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: #cc0000;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  /* Desktop row */
+  .dv-desktop .dv-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: #111111;
+    border: 1px solid #222;
+    transition: all 0.3s;
+    animation: fadeSlide 0.4s ease both;
+  }
+  .dv-desktop .dv-row:hover { border-color: #cc0000; transform: translateX(-3px); }
+  .dv-desktop .dv-row.pos-1 { background: linear-gradient(135deg, #1a0000, #2d0000); border-color: #cc0000; border-width: 1.5px; }
+  .dv-desktop .dv-row.pos-2 { background: linear-gradient(135deg, #111, #1c1c1c); border-color: #444; }
+  .dv-desktop .dv-row.pos-3 { background: linear-gradient(135deg, #0f0f0f, #1a1a1a); border-color: #333; }
+
+  .dv-desktop .dv-rank {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  .dv-desktop .pos-1 .dv-rank { background: #cc0000; color: white; box-shadow: 0 0 12px #cc000066; }
+  .dv-desktop .pos-2 .dv-rank { background: #444; color: #ccc; }
+  .dv-desktop .pos-3 .dv-rank { background: #2a2a2a; color: #999; }
+  .dv-desktop .pos-other .dv-rank { background: #1a1a1a; color: #555; border: 1px solid #333; }
+
+  .dv-desktop .dv-av {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.9rem; color: white;
+    flex-shrink: 0;
+  }
+  .dv-desktop .dv-name { flex: 1; font-size: 0.95rem; font-weight: 700; color: #fff; }
+  .dv-desktop .pos-1 .dv-name { color: #ff6666; font-size: 1rem; }
+  .dv-desktop .dv-pts {
+    font-size: 1.1rem; font-weight: 900;
+    color: #cc0000;
+    min-width: 50px;
+    text-align: left;
+  }
+  .dv-desktop .pos-1 .dv-pts { font-size: 1.25rem; color: #ff3333; }
+  .dv-desktop .dv-meta { font-size: 0.72rem; color: #555; text-align: left; line-height: 1.4; }
+
+  /* Crown icon on top player */
+  .dv-desktop .pos-1 .dv-name::before { content: '👑 '; }
+
+  /* ===== MOBILE MODE ===== */
+  .dv-mobile { display: none; }
+  .dv-mobile.visible { display: block; }
+  .dv-desktop.visible { display: block; }
+
+  /* Mobile: single column, compact card per entry */
+  .dv-mobile .dv-mob-list {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .dv-mobile .dv-mob-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 7px;
+    background: #111;
+    border-right: 4px solid #333;
+    animation: fadeSlide 0.35s ease both;
+  }
+  .dv-mobile .dv-mob-row.pos-1 { border-right-color: #cc0000; background: #1a0000; }
+  .dv-mobile .dv-mob-row.pos-2 { border-right-color: #555; }
+  .dv-mobile .dv-mob-row.pos-3 { border-right-color: #333; }
+
+  .dv-mobile .mob-rank {
+    font-size: 1rem; font-weight: 900;
+    color: #555; min-width: 22px;
+    text-align: center;
+  }
+  .dv-mobile .pos-1 .mob-rank { color: #cc0000; }
+  .dv-mobile .pos-2 .mob-rank { color: #888; }
+  .dv-mobile .pos-3 .mob-rank { color: #666; }
+
+  .dv-mobile .mob-av {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.75rem; color: white;
+    flex-shrink: 0;
+  }
+  .dv-mobile .mob-name { flex: 1; font-size: 0.88rem; font-weight: 700; color: #ddd; }
+  .dv-mobile .pos-1 .mob-name { color: #ff6666; }
+  .dv-mobile .mob-pts { font-weight: 900; color: #cc0000; font-size: 1rem; }
+  .dv-mobile .mob-meta { font-size: 0.7rem; color: #444; }
+
+  /* Mobile section separator */
+  .dv-mobile .mob-sep { height: 20px; }
+
+  /* Big highlight top banner (both modes) */
+  .dv-top-banner {
+    background: linear-gradient(135deg, #1a0000, #2d0000);
+    border: 2px solid #cc0000;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 0 30px #cc000033;
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+  @keyframes glowPulse {
+    0%,100% { box-shadow: 0 0 20px #cc000033; }
+    50%      { box-shadow: 0 0 40px #cc000066; }
+  }
+  .dv-top-banner .crown { font-size: 2.5rem; }
+  .dv-top-banner .tb-label { font-size: 0.7rem; letter-spacing: 2px; color: #cc0000; text-transform: uppercase; font-weight: 700; }
+  .dv-top-banner .tb-name { font-size: 1.6rem; font-weight: 900; color: #fff; line-height: 1.2; }
+  .dv-top-banner .tb-score { font-size: 0.9rem; color: #ff6666; margin-top: 3px; }
+  .dv-top-banner .tb-av {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 900; color: white;
+    border: 3px solid #cc0000;
+    flex-shrink: 0;
+  }
+
+  /* Ticker at bottom */
+  .dv-ticker {
+    background: #0a0a0a;
+    border-top: 1px solid #cc0000;
+    padding: 8px 0;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .dv-ticker-inner {
+    display: flex;
+    gap: 40px;
+    white-space: nowrap;
+    animation: ticker 20s linear infinite;
+  }
+  .dv-ticker-item {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #888;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .dv-ticker-item .t-score { color: #cc0000; font-weight: 800; }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  /* Stagger animation delays */
+  .dv-row:nth-child(1), .dv-mob-row:nth-child(1) { animation-delay: 0.05s; }
+  .dv-row:nth-child(2), .dv-mob-row:nth-child(2) { animation-delay: 0.1s; }
+  .dv-row:nth-child(3), .dv-mob-row:nth-child(3) { animation-delay: 0.15s; }
+  .dv-row:nth-child(4), .dv-mob-row:nth-child(4) { animation-delay: 0.2s; }
+  .dv-row:nth-child(5), .dv-mob-row:nth-child(5) { animation-delay: 0.25s; }
+  .dv-row:nth-child(6), .dv-mob-row:nth-child(6) { animation-delay: 0.3s; }
+
+  /* Mode indicator pill */
+  .mode-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 0.72rem;
+    color: #888;
+    font-weight: 600;
+  }
+  .mode-pill .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #cc0000;
+    animation: pulse 1.5s infinite;
+  }
+</style>
+</head>
+<body>
+
+<div id="cardFlipOverlay"></div>
+
+<div class="app-header">
+  <h1>🃏 ONFLICK SHOW CASE</h1>
+  <p id="tournamentSubtitle">מערכת ניהול טורניר</p>
+</div>
+
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showPage('dashboard')">📊 לוח</button>
+  <button class="nav-tab" onclick="showPage('players')">👤 שחקנים</button>
+  <button class="nav-tab" onclick="showPage('teams')">👥 קבוצות</button>
+  <button class="nav-tab" onclick="showPage('game')">🎮 משחק</button>
+  <button class="nav-tab" onclick="showPage('leaderboard')">🏆 טבלה</button>
+  <button class="nav-tab" onclick="showPage('history')">📜 היסטוריה</button>
+  <button class="nav-tab" onclick="openDisplay()" style="color:#cc0000;font-weight:800;">📺 תצוגה</button>
+</nav>
+
+<!-- =============================================
+     LIVE DISPLAY OVERLAY
+============================================= -->
+<div id="displayOverlay">
+  <!-- Header -->
+  <div class="dv-header">
+    <div class="dv-logo">ONFLICK <span>SHOW CASE</span></div>
+    <div class="dv-controls">
+      <div class="mode-pill"><div class="dot"></div><span id="modePillLabel">דסקטופ</span></div>
+      <button class="dv-toggle-btn active-mode" id="dvToggleBtn" onclick="toggleDisplayMode()">
+        <span id="dvToggleIcon">📱</span>
+        <span id="dvToggleLabel">מעבר לנייד</span>
+      </button>
+      <button class="dv-close-btn" onclick="closeDisplay()">✕ סגור</button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="dv-body" id="dvBody">
+
+    <!-- Desktop layout -->
+    <div class="dv-desktop visible" id="dvDesktop">
+      <div id="dvTopBannerDesktop"></div>
+      <div class="dv-columns">
+        <div>
+          <div class="dv-col-title">👤 שחקנים</div>
+          <div id="dvPlayerListDesktop"></div>
+        </div>
+        <div>
+          <div class="dv-col-title">👥 קבוצות</div>
+          <div id="dvTeamListDesktop"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile layout -->
+    <div class="dv-mobile" id="dvMobile">
+      <div id="dvTopBannerMobile"></div>
+      <div class="dv-mob-list">
+        <div class="dv-section-title">שחקנים</div>
+        <div id="dvPlayerListMobile"></div>
+        <div class="mob-sep"></div>
+        <div class="dv-section-title">קבוצות</div>
+        <div id="dvTeamListMobile"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Ticker -->
+  <div class="dv-ticker">
+    <div class="dv-ticker-inner" id="dvTicker"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <div id="activeBanner"></div>
+  <div class="stats-grid" id="dashStats"></div>
+  <div id="topHighlights"></div>
+  <div class="card">
+    <div class="card-title"><span class="icon">⚡</span>פעולות מהירות</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="showPage('game')">🎮 משחק חדש</button>
+      <button class="btn btn-secondary" onclick="showPage('players')">👤 הוסף שחקן</button>
+      <button class="btn btn-secondary" onclick="showPage('teams')">👥 צור קבוצה</button>
+      <button class="btn btn-secondary" onclick="showPage('leaderboard')">🏆 צפה בטבלה</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="icon">🕐</span>משחקים אחרונים</div>
+    <div id="recentGames"></div>
+  </div>
+</div>
+
+<!-- PLAYERS -->
+<div id="page-players" class="page">
+  <div class="card">
+    <div class="card-title"><span class="icon">➕</span>הוסף שחקן</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>שם השחקן</label>
+        <input type="text" id="playerName" placeholder="הזן שם...">
+      </div>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label style="display:block;margin-bottom:6px;font-size:0.8rem;font-weight:600;color:var(--text-muted);">צבע אווטאר</label>
+      <div class="color-options" id="playerColorOptions"></div>
+    </div>
+    <button class="btn btn-primary" onclick="addPlayer()">➕ הוסף שחקן</button>
+  </div>
+  <div class="card">
+    <div class="section-header">
+      <div class="section-title">שחקנים רשומים</div>
+      <span id="playerCount" class="badge badge-primary">0</span>
+    </div>
+    <div id="playersList"></div>
+  </div>
+</div>
+
+<!-- TEAMS -->
+<div id="page-teams" class="page">
+  <div class="card">
+    <div class="card-title"><span class="icon">➕</span>צור קבוצה</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>שם הקבוצה</label>
+        <input type="text" id="teamName" placeholder="שם הקבוצה...">
+      </div>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label style="display:block;margin-bottom:6px;font-size:0.8rem;font-weight:600;color:var(--text-muted);">צבע קבוצה</label>
+      <div class="color-options" id="teamColorOptions"></div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;margin-bottom:6px;font-size:0.8rem;font-weight:600;color:var(--text-muted);">בחר שחקנים</label>
+      <div class="checkbox-grid" id="teamPlayerSelect"></div>
+    </div>
+    <button class="btn btn-primary" onclick="addTeam()">➕ צור קבוצה</button>
+  </div>
+  <div class="card">
+    <div class="section-header">
+      <div class="section-title">קבוצות בטורניר</div>
+      <span id="teamCount" class="badge badge-primary">0</span>
+    </div>
+    <div id="teamsList"></div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="page-game" class="page">
+  <div id="gameSetupSection">
+    <div class="card">
+      <div class="card-title"><span class="icon">🎮</span>הגדרת משחק חדש</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>שם/תיאור המשחק</label>
+          <input type="text" id="gameTitle" placeholder="למשל: גמר, חצי גמר...">
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="display:block;margin-bottom:6px;font-size:0.8rem;font-weight:600;color:var(--text-muted);">סוג משחק</label>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary btn-sm" id="modeIndBtn" onclick="setGameMode('individual')">👤 יחידים</button>
+          <button class="btn btn-secondary btn-sm" id="modeTeamBtn" onclick="setGameMode('teams')">👥 קבוצות</button>
+        </div>
+      </div>
+      <div id="participantSelection">
+        <label style="display:block;margin-bottom:6px;font-size:0.8rem;font-weight:600;color:var(--text-muted);">בחר משתתפים</label>
+        <div class="checkbox-grid" id="participantList"></div>
+      </div>
+      <hr class="divider">
+      <button class="btn btn-success" onclick="startGame()" style="width:100%;">🚀 התחל משחק</button>
+    </div>
+  </div>
+
+  <div id="gameActiveSection" style="display:none;">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:1.1rem;font-weight:700;" id="activeGameTitle"></div>
+          <div style="font-size:0.78rem;color:var(--text-muted);" id="activeGameInfo"></div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="cancelGame()">✕ בטל</button>
+      </div>
+      <div class="round-header">
+        <div style="font-weight:700;font-size:0.95rem;" id="roundLabel"></div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm" onclick="addRound()">➕ סיבוב חדש</button>
+          <button class="btn btn-success btn-sm" onclick="finishGame()">✅ סיים משחק</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="score-table" id="scoreTable">
+          <thead id="scoreTableHead"></thead>
+          <tbody id="scoreTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div id="page-leaderboard" class="page">
+  <div class="card">
+    <div class="card-title"><span class="icon">👤</span>טבלת שחקנים</div>
+    <div id="playerLeaderboard"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="icon">👥</span>טבלת קבוצות</div>
+    <div id="teamLeaderboard"></div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="page-history" class="page">
+  <div class="card">
+    <div class="section-header">
+      <div class="card-title" style="margin:0;"><span class="icon">📜</span>היסטוריית משחקים</div>
+      <button class="btn btn-danger btn-sm" onclick="confirmClearHistory()">🗑️ נקה הכל</button>
+    </div>
+    <div id="gameHistory"></div>
+  </div>
+</div>
+
+<!-- EDIT PLAYER MODAL -->
+<div class="modal-overlay" id="editPlayerModal">
+  <div class="modal">
+    <div class="modal-title">✏️ עריכת שחקן</div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>שם השחקן</label>
+      <input type="text" id="editPlayerName">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;margin-bottom:6px;font-size:0.8rem;font-weight:600;color:var(--text-muted);">צבע אווטאר</label>
+      <div class="color-options" id="editPlayerColorOptions"></div>
+    </div>
+    <input type="hidden" id="editPlayerId">
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('editPlayerModal')">ביטול</button>
+      <button class="btn btn-primary" onclick="saveEditPlayer()">💾 שמור</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT TEAM MODAL -->
+<div class="modal-overlay" id="editTeamModal">
+  <div class="modal">
+    <div class="modal-title">✏️ עריכת קבוצה</div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>שם הקבוצה</label>
+      <input type="text" id="editTeamName">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;margin-bottom:6px;font-size:0.8rem;font-weight:600;color:var(--text-muted);">צבע קבוצה</label>
+      <div class="color-options" id="editTeamColorOptions"></div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;margin-bottom:6px;font-size:0.8rem;font-weight:600;color:var(--text-muted);">שחקנים</label>
+      <div class="checkbox-grid" id="editTeamPlayerSelect"></div>
+    </div>
+    <input type="hidden" id="editTeamId">
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('editTeamModal')">ביטול</button>
+      <button class="btn btn-primary" onclick="saveEditTeam()">💾 שמור</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-title" id="confirmTitle">אישור פעולה</div>
+    <p id="confirmMsg" style="font-size:0.9rem;color:var(--text-muted);margin-bottom:8px;"></p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('confirmModal')">ביטול</button>
+      <button class="btn btn-danger" id="confirmOkBtn">אישור</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// DATA LAYER
+// ============================================================
+const COLORS = ['#cc0000','#990000','#ff3333','#800000','#ff0000','#660000','#1a1a1a','#333333','#555555','#000000','#222222','#ff6666'];
+
+function loadData() {
+  try {
+    return JSON.parse(localStorage.getItem('rummyTournament') || '{}');
+  } catch { return {}; }
+}
+
+function saveData(data) {
+  localStorage.setItem('rummyTournament', JSON.stringify(data));
+}
+
+function getData() {
+  const d = loadData();
+  if (!d.players) d.players = [];
+  if (!d.teams) d.teams = [];
+  if (!d.games) d.games = [];
+  if (!d.activeGame) d.activeGame = null;
+  return d;
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const tabs = ['dashboard','players','teams','game','leaderboard','history'];
+  const idx = tabs.indexOf(page);
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'players') renderPlayers();
+  if (page === 'teams') renderTeams();
+  if (page === 'game') renderGamePage();
+  if (page === 'leaderboard') renderLeaderboard();
+  if (page === 'history') renderHistory();
+}
+
+// ============================================================
+// COLORS
+// ============================================================
+let selectedPlayerColor = COLORS[0];
+let selectedTeamColor = COLORS[1];
+let editPlayerSelectedColor = COLORS[0];
+let editTeamSelectedColor = COLORS[1];
+
+function renderColorSwatches(containerId, selected, onSelect) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  COLORS.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'color-swatch' + (c === selected ? ' selected' : '');
+    el.style.background = c;
+    el.onclick = () => {
+      onSelect(c);
+      renderColorSwatches(containerId, c, onSelect);
+    };
+    container.appendChild(el);
+  });
+}
+
+// ============================================================
+// PLAYERS
+// ============================================================
+function addPlayer() {
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) { showToast('הזן שם שחקן'); return; }
+  const data = getData();
+  if (data.players.find(p => p.name === name)) { showToast('שחקן עם שם זה כבר קיים'); return; }
+  data.players.push({ id: uid(), name, color: selectedPlayerColor });
+  saveData(data);
+  document.getElementById('playerName').value = '';
+  renderPlayers();
+  showToast('השחקן נוסף בהצלחה ✅');
+}
+
+function deletePlayer(id) {
+  showConfirm('מחיקת שחקן', 'האם אתה בטוח שברצונך למחוק שחקן זה?', () => {
+    const data = getData();
+    data.players = data.players.filter(p => p.id !== id);
+    data.teams.forEach(t => { t.playerIds = t.playerIds.filter(pid => pid !== id); });
+    saveData(data);
+    renderPlayers();
+    showToast('השחקן נמחק');
+  });
+}
+
+function openEditPlayer(id) {
+  const data = getData();
+  const p = data.players.find(x => x.id === id);
+  document.getElementById('editPlayerId').value = id;
+  document.getElementById('editPlayerName').value = p.name;
+  editPlayerSelectedColor = p.color;
+  renderColorSwatches('editPlayerColorOptions', editPlayerSelectedColor, c => { editPlayerSelectedColor = c; });
+  openModal('editPlayerModal');
+}
+
+function saveEditPlayer() {
+  const id = document.getElementById('editPlayerId').value;
+  const name = document.getElementById('editPlayerName').value.trim();
+  if (!name) { showToast('הזן שם שחקן'); return; }
+  const data = getData();
+  const p = data.players.find(x => x.id === id);
+  p.name = name;
+  p.color = editPlayerSelectedColor;
+  saveData(data);
+  closeModal('editPlayerModal');
+  renderPlayers();
+  showToast('השחקן עודכן ✅');
+}
+
+function renderPlayers() {
+  renderColorSwatches('playerColorOptions', selectedPlayerColor, c => { selectedPlayerColor = c; });
+  const data = getData();
+  const list = document.getElementById('playersList');
+  document.getElementById('playerCount').textContent = data.players.length;
+  if (!data.players.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">👤</div><p>אין שחקנים עדיין. הוסף שחקן למעלה.</p></div>';
+    return;
+  }
+  const stats = computePlayerStats(data);
+  list.innerHTML = data.players.map(p => {
+    const s = stats[p.id] || { total: 0, games: 0 };
+    const teamName = data.teams.find(t => t.playerIds.includes(p.id))?.name || '';
+    return `<div class="list-item">
+      <div class="avatar" style="background:${p.color}">${p.name[0]}</div>
+      <div class="list-item-info">
+        <div class="list-item-name">${esc(p.name)}</div>
+        <div class="list-item-sub">${teamName ? '👥 ' + esc(teamName) + ' · ' : ''}🎮 ${s.games} משחקים · 🏅 ${s.total} נקודות</div>
+      </div>
+      <div class="list-actions">
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="openEditPlayer('${p.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deletePlayer('${p.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// TEAMS
+// ============================================================
+function addTeam() {
+  const name = document.getElementById('teamName').value.trim();
+  if (!name) { showToast('הזן שם קבוצה'); return; }
+  const data = getData();
+  if (data.teams.find(t => t.name === name)) { showToast('קבוצה עם שם זה כבר קיימת'); return; }
+  const playerIds = [...document.querySelectorAll('#teamPlayerSelect .checkbox-item.checked')].map(el => el.dataset.id);
+  if (playerIds.length < 1) { showToast('בחר לפחות שחקן אחד'); return; }
+  data.teams.push({ id: uid(), name, color: selectedTeamColor, playerIds });
+  saveData(data);
+  document.getElementById('teamName').value = '';
+  renderTeams();
+  showToast('הקבוצה נוצרה בהצלחה ✅');
+}
+
+function deleteTeam(id) {
+  showConfirm('מחיקת קבוצה', 'האם אתה בטוח שברצונך למחוק קבוצה זו?', () => {
+    const data = getData();
+    data.teams = data.teams.filter(t => t.id !== id);
+    saveData(data);
+    renderTeams();
+    showToast('הקבוצה נמחקה');
+  });
+}
+
+function openEditTeam(id) {
+  const data = getData();
+  const t = data.teams.find(x => x.id === id);
+  document.getElementById('editTeamId').value = id;
+  document.getElementById('editTeamName').value = t.name;
+  editTeamSelectedColor = t.color;
+  renderColorSwatches('editTeamColorOptions', editTeamSelectedColor, c => { editTeamSelectedColor = c; });
+  const container = document.getElementById('editTeamPlayerSelect');
+  container.innerHTML = data.players.map(p =>
+    `<div class="checkbox-item ${t.playerIds.includes(p.id) ? 'checked' : ''}" data-id="${p.id}" onclick="toggleCheckbox(this)">
+      <div class="avatar" style="background:${p.color};width:22px;height:22px;font-size:0.65rem">${p.name[0]}</div>
+      <span>${esc(p.name)}</span>
+    </div>`
+  ).join('');
+  openModal('editTeamModal');
+}
+
+function saveEditTeam() {
+  const id = document.getElementById('editTeamId').value;
+  const name = document.getElementById('editTeamName').value.trim();
+  if (!name) { showToast('הזן שם קבוצה'); return; }
+  const playerIds = [...document.querySelectorAll('#editTeamPlayerSelect .checkbox-item.checked')].map(el => el.dataset.id);
+  if (!playerIds.length) { showToast('בחר לפחות שחקן אחד'); return; }
+  const data = getData();
+  const t = data.teams.find(x => x.id === id);
+  t.name = name;
+  t.color = editTeamSelectedColor;
+  t.playerIds = playerIds;
+  saveData(data);
+  closeModal('editTeamModal');
+  renderTeams();
+  showToast('הקבוצה עודכנה ✅');
+}
+
+function renderTeams() {
+  renderColorSwatches('teamColorOptions', selectedTeamColor, c => { selectedTeamColor = c; });
+  const data = getData();
+  document.getElementById('teamCount').textContent = data.teams.length;
+
+  // player checkboxes
+  const psel = document.getElementById('teamPlayerSelect');
+  psel.innerHTML = data.players.map(p =>
+    `<div class="checkbox-item" data-id="${p.id}" onclick="toggleCheckbox(this)">
+      <div class="avatar" style="background:${p.color};width:22px;height:22px;font-size:0.65rem">${p.name[0]}</div>
+      <span>${esc(p.name)}</span>
+    </div>`
+  ).join('');
+
+  const list = document.getElementById('teamsList');
+  const stats = computeTeamStats(data);
+  if (!data.teams.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><p>אין קבוצות עדיין.</p></div>';
+    return;
+  }
+  list.innerHTML = data.teams.map(t => {
+    const s = stats[t.id] || { total: 0, games: 0 };
+    const members = t.playerIds.map(id => data.players.find(p => p.id === id)).filter(Boolean);
+    return `<div class="list-item" style="flex-direction:column;align-items:flex-start;">
+      <div style="display:flex;align-items:center;gap:10px;width:100%;">
+        <div class="avatar" style="background:${t.color}">${t.name[0]}</div>
+        <div class="list-item-info">
+          <div class="list-item-name">${esc(t.name)}</div>
+          <div class="list-item-sub">🎮 ${s.games} משחקים · 🏅 ${s.total} נקודות</div>
+        </div>
+        <div class="list-actions">
+          <button class="btn btn-secondary btn-sm btn-icon" onclick="openEditTeam('${t.id}')">✏️</button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteTeam('${t.id}')">🗑️</button>
+        </div>
+      </div>
+      <div class="team-players-list">
+        ${members.map(p => `<span class="team-player-tag" style="background:${t.color}">${esc(p.name)}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// GAME
+// ============================================================
+let gameMode = 'individual';
+
+function setGameMode(mode) {
+  gameMode = mode;
+  document.getElementById('modeIndBtn').className = mode === 'individual' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+  document.getElementById('modeTeamBtn').className = mode === 'teams' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+  renderParticipantList();
+}
+
+function renderParticipantList() {
+  const data = getData();
+  const container = document.getElementById('participantList');
+  if (gameMode === 'individual') {
+    if (!data.players.length) {
+      container.innerHTML = '<div class="alert alert-warning">אין שחקנים. הוסף שחקנים תחילה.</div>';
+      return;
+    }
+    container.innerHTML = data.players.map(p =>
+      `<div class="checkbox-item" data-id="${p.id}" onclick="toggleCheckbox(this)">
+        <div class="avatar" style="background:${p.color};width:22px;height:22px;font-size:0.65rem">${p.name[0]}</div>
+        <span>${esc(p.name)}</span>
+      </div>`
+    ).join('');
+  } else {
+    if (!data.teams.length) {
+      container.innerHTML = '<div class="alert alert-warning">אין קבוצות. צור קבוצות תחילה.</div>';
+      return;
+    }
+    container.innerHTML = data.teams.map(t =>
+      `<div class="checkbox-item" data-id="${t.id}" onclick="toggleCheckbox(this)">
+        <div class="avatar" style="background:${t.color};width:22px;height:22px;font-size:0.65rem">${t.name[0]}</div>
+        <span>${esc(t.name)}</span>
+      </div>`
+    ).join('');
+  }
+}
+
+function startGame() {
+  const data = getData();
+  const title = document.getElementById('gameTitle').value.trim() || 'משחק #' + (data.games.length + 1);
+  const selected = [...document.querySelectorAll('#participantList .checkbox-item.checked')].map(el => el.dataset.id);
+  if (selected.length < 2) { showToast('בחר לפחות 2 משתתפים'); return; }
+
+  let participants;
+  if (gameMode === 'individual') {
+    participants = selected.map(id => {
+      const p = data.players.find(x => x.id === id);
+      return { id: p.id, name: p.name, color: p.color, type: 'player' };
+    });
+  } else {
+    participants = selected.map(id => {
+      const t = data.teams.find(x => x.id === id);
+      return { id: t.id, name: t.name, color: t.color, type: 'team', playerIds: t.playerIds };
+    });
+  }
+
+  data.activeGame = {
+    id: uid(),
+    title,
+    mode: gameMode,
+    participants,
+    rounds: [{}],
+    startedAt: new Date().toISOString()
+  };
+  // init first round
+  participants.forEach(p => { data.activeGame.rounds[0][p.id] = ''; });
+
+  saveData(data);
+  renderGamePage();
+  showToast('המשחק התחיל! 🎮');
+}
+
+function addRound() {
+  const data = getData();
+  if (!data.activeGame) return;
+  const round = {};
+  data.activeGame.participants.forEach(p => { round[p.id] = ''; });
+  data.activeGame.rounds.push(round);
+  saveData(data);
+  renderScoreTable();
+}
+
+function saveScore(roundIdx, participantId, value) {
+  const data = getData();
+  if (!data.activeGame) return;
+  data.activeGame.rounds[roundIdx][participantId] = value === '' ? '' : parseInt(value) || 0;
+  saveData(data);
+  updateTotalsRow();
+}
+
+function updateTotalsRow() {
+  const data = getData();
+  if (!data.activeGame) return;
+  const ag = data.activeGame;
+  ag.participants.forEach(p => {
+    const total = ag.rounds.reduce((sum, r) => sum + (r[p.id] === '' || r[p.id] === undefined ? 0 : Number(r[p.id])), 0);
+    const el = document.getElementById('total_' + p.id);
+    if (el) el.textContent = total;
+  });
+}
+
+function finishGame() {
+  const data = getData();
+  if (!data.activeGame) return;
+  const ag = data.activeGame;
+
+  // Compute totals
+  const totals = {};
+  ag.participants.forEach(p => {
+    totals[p.id] = ag.rounds.reduce((sum, r) => sum + (r[p.id] === '' || r[p.id] === undefined ? 0 : Number(r[p.id])), 0);
+  });
+
+  const game = {
+    id: ag.id,
+    title: ag.title,
+    mode: ag.mode,
+    participants: ag.participants,
+    rounds: ag.rounds,
+    totals,
+    finishedAt: new Date().toISOString()
+  };
+
+  data.games.unshift(game);
+  data.activeGame = null;
+  saveData(data);
+  renderGamePage();
+  renderDashboard();
+  showToast('המשחק הסתיים ונשמר! ✅');
+  showPage('leaderboard');
+}
+
+function cancelGame() {
+  showConfirm('ביטול משחק', 'האם אתה בטוח? כל הנקודות יאבדו.', () => {
+    const data = getData();
+    data.activeGame = null;
+    saveData(data);
+    renderGamePage();
+    showToast('המשחק בוטל');
+  });
+}
+
+function renderGamePage() {
+  const data = getData();
+  renderParticipantList();
+  if (data.activeGame) {
+    document.getElementById('gameSetupSection').style.display = 'none';
+    document.getElementById('gameActiveSection').style.display = 'block';
+    document.getElementById('activeGameTitle').textContent = data.activeGame.title;
+    document.getElementById('activeGameInfo').textContent =
+      (data.activeGame.mode === 'individual' ? '👤 יחידים' : '👥 קבוצות') +
+      ' · ' + data.activeGame.participants.length + ' משתתפים';
+    renderScoreTable();
+  } else {
+    document.getElementById('gameSetupSection').style.display = 'block';
+    document.getElementById('gameActiveSection').style.display = 'none';
+    document.getElementById('gameTitle').value = '';
+  }
+}
+
+function renderScoreTable() {
+  const data = getData();
+  const ag = data.activeGame;
+  if (!ag) return;
+
+  document.getElementById('roundLabel').textContent = `סיבוב ${ag.rounds.length}`;
+
+  const head = document.getElementById('scoreTableHead');
+  const body = document.getElementById('scoreTableBody');
+
+  // Header: participant names
+  head.innerHTML = '<tr><th>סיבוב</th>' +
+    ag.participants.map(p =>
+      `<th><div style="display:flex;align-items:center;justify-content:center;gap:4px;">
+        <div class="avatar" style="background:${p.color};width:22px;height:22px;font-size:0.65rem">${p.name[0]}</div>
+        <span>${esc(p.name)}</span>
+      </div></th>`
+    ).join('') + '</tr>';
+
+  // Rows per round
+  body.innerHTML = ag.rounds.map((round, ri) =>
+    `<tr>
+      <td style="font-weight:600;color:var(--text-muted)">${ri + 1}</td>
+      ${ag.participants.map(p =>
+        `<td><input type="number" value="${round[p.id] === '' || round[p.id] === undefined ? '' : round[p.id]}"
+          oninput="saveScore(${ri},'${p.id}',this.value)"
+          style="width:60px;text-align:center;"></td>`
+      ).join('')}
+    </tr>`
+  ).join('');
+
+  // Totals row
+  const totals = {};
+  ag.participants.forEach(p => {
+    totals[p.id] = ag.rounds.reduce((sum, r) => sum + (r[p.id] === '' || r[p.id] === undefined ? 0 : Number(r[p.id])), 0);
+  });
+
+  body.innerHTML += `<tr style="background:var(--bg);">
+    <td style="font-weight:700;">סה"כ</td>
+    ${ag.participants.map(p =>
+      `<td class="total-cell" id="total_${p.id}">${totals[p.id]}</td>`
+    ).join('')}
+  </tr>`;
+}
+
+// ============================================================
+// STATS COMPUTATION
+// ============================================================
+function computePlayerStats(data) {
+  const stats = {};
+  data.players.forEach(p => { stats[p.id] = { total: 0, games: 0, scores: [] }; });
+  data.games.forEach(g => {
+    if (g.mode === 'individual') {
+      g.participants.forEach(p => {
+        if (!stats[p.id]) stats[p.id] = { total: 0, games: 0, scores: [] };
+        const score = g.totals[p.id] || 0;
+        stats[p.id].total += score;
+        stats[p.id].games += 1;
+        stats[p.id].scores.push(score);
+      });
+    } else {
+      // team game — attribute to individual players too
+      g.participants.forEach(team => {
+        const teamScore = g.totals[team.id] || 0;
+        const members = team.playerIds || [];
+        members.forEach(pid => {
+          if (!stats[pid]) stats[pid] = { total: 0, games: 0, scores: [] };
+          stats[pid].total += teamScore;
+          stats[pid].games += 1;
+          stats[pid].scores.push(teamScore);
+        });
+      });
+    }
+  });
+  return stats;
+}
+
+function computeTeamStats(data) {
+  const stats = {};
+  data.teams.forEach(t => { stats[t.id] = { total: 0, games: 0, scores: [] }; });
+  data.games.forEach(g => {
+    if (g.mode === 'teams') {
+      g.participants.forEach(t => {
+        if (!stats[t.id]) stats[t.id] = { total: 0, games: 0, scores: [] };
+        const score = g.totals[t.id] || 0;
+        stats[t.id].total += score;
+        stats[t.id].games += 1;
+        stats[t.id].scores.push(score);
+      });
+    }
+  });
+  return stats;
+}
+
+// ============================================================
+// LEADERBOARD
+// ============================================================
+function renderLeaderboard() {
+  const data = getData();
+  const pStats = computePlayerStats(data);
+  const tStats = computeTeamStats(data);
+
+  // Players
+  const players = data.players
+    .map(p => ({ ...p, ...pStats[p.id] }))
+    .sort((a, b) => b.total - a.total);
+
+  const plb = document.getElementById('playerLeaderboard');
+  if (!players.length) {
+    plb.innerHTML = '<div class="empty-state"><div class="empty-icon">👤</div><p>אין שחקנים עדיין</p></div>';
+  } else {
+    plb.innerHTML = players.map((p, i) => {
+      const rank = i + 1;
+      const avg = p.games ? (p.total / p.games).toFixed(1) : '0';
+      const rankClass = rank <= 3 ? 'rank-' + rank : 'rank-other';
+      return `<div class="lb-row ${rankClass}">
+        <div class="rank-badge">${rank}</div>
+        <div class="avatar" style="background:${p.color};width:32px;height:32px;font-size:0.85rem">${p.name[0]}</div>
+        <div class="lb-name">${esc(p.name)}</div>
+        <div class="lb-stats">
+          <div class="lb-stat"><div class="lb-stat-val">${p.total}</div><div class="lb-stat-label">נקודות</div></div>
+          <div class="lb-stat"><div class="lb-stat-val">${p.games}</div><div class="lb-stat-label">משחקים</div></div>
+          <div class="lb-stat"><div class="lb-stat-val">${avg}</div><div class="lb-stat-label">ממוצע</div></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Teams
+  const teams = data.teams
+    .map(t => ({ ...t, ...tStats[t.id] }))
+    .sort((a, b) => b.total - a.total);
+
+  const tlb = document.getElementById('teamLeaderboard');
+  if (!teams.length) {
+    tlb.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><p>אין קבוצות עדיין</p></div>';
+  } else {
+    tlb.innerHTML = teams.map((t, i) => {
+      const rank = i + 1;
+      const avg = t.games ? (t.total / t.games).toFixed(1) : '0';
+      const rankClass = rank <= 3 ? 'rank-' + rank : 'rank-other';
+      return `<div class="lb-row ${rankClass}">
+        <div class="rank-badge">${rank}</div>
+        <div class="avatar" style="background:${t.color};width:32px;height:32px;font-size:0.85rem">${t.name[0]}</div>
+        <div class="lb-name">${esc(t.name)}</div>
+        <div class="lb-stats">
+          <div class="lb-stat"><div class="lb-stat-val">${t.total}</div><div class="lb-stat-label">נקודות</div></div>
+          <div class="lb-stat"><div class="lb-stat-val">${t.games}</div><div class="lb-stat-label">משחקים</div></div>
+          <div class="lb-stat"><div class="lb-stat-val">${avg}</div><div class="lb-stat-label">ממוצע</div></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+function renderHistory() {
+  const data = getData();
+  const container = document.getElementById('gameHistory');
+  if (!data.games.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📜</div><p>אין משחקים עדיין</p></div>';
+    return;
+  }
+  container.innerHTML = data.games.map(g => {
+    const date = new Date(g.finishedAt);
+    const dateStr = date.toLocaleDateString('he-IL') + ' ' + date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+    const sorted = [...g.participants].sort((a, b) => (g.totals[b.id] || 0) - (g.totals[a.id] || 0));
+    const winner = sorted[0];
+    const scores = sorted.map(p =>
+      `<div class="player-score-chip">
+        <div class="avatar" style="background:${p.color};width:18px;height:18px;font-size:0.6rem;flex-shrink:0">${p.name[0]}</div>
+        <span>${esc(p.name)}</span>
+        <span class="score">${g.totals[p.id] || 0}</span>
+      </div>`
+    ).join('');
+    return `<div class="game-card">
+      <div class="game-card-header">
+        <div>
+          <div class="game-card-title">${esc(g.title)}</div>
+          <div class="game-card-date">${dateStr} · ${g.rounds.length} סיבובים · ${g.mode === 'individual' ? '👤 יחידים' : '👥 קבוצות'}</div>
+        </div>
+        <span class="badge badge-success">🏆 ${esc(winner.name)}</span>
+      </div>
+      <div class="game-card-scores">${scores}</div>
+    </div>`;
+  }).join('');
+}
+
+function confirmClearHistory() {
+  showConfirm('ניקוי היסטוריה', 'האם אתה בטוח? כל הנתונים יימחקו לצמיתות!', () => {
+    const data = getData();
+    data.games = [];
+    saveData(data);
+    renderHistory();
+    renderDashboard();
+    showToast('ההיסטוריה נוקתה');
+  });
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const data = getData();
+  const pStats = computePlayerStats(data);
+  const tStats = computeTeamStats(data);
+
+  // Stats
+  const totalGames = data.games.length;
+  const totalRounds = data.games.reduce((s, g) => s + g.rounds.length, 0);
+  document.getElementById('dashStats').innerHTML = `
+    <div class="stat-box"><div class="stat-box-val">${data.players.length}</div><div class="stat-box-label">שחקנים</div></div>
+    <div class="stat-box"><div class="stat-box-val">${data.teams.length}</div><div class="stat-box-label">קבוצות</div></div>
+    <div class="stat-box"><div class="stat-box-val">${totalGames}</div><div class="stat-box-label">משחקים</div></div>
+    <div class="stat-box"><div class="stat-box-val">${totalRounds}</div><div class="stat-box-label">סיבובים</div></div>
+  `;
+
+  // Active game banner
+  const banner = document.getElementById('activeBanner');
+  if (data.activeGame) {
+    banner.innerHTML = `<div class="active-game-banner">
+      <div class="pulse"></div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:0.92rem;">משחק פעיל: ${esc(data.activeGame.title)}</div>
+        <div style="font-size:0.78rem;color:var(--success);">${data.activeGame.participants.length} משתתפים · ${data.activeGame.rounds.length} סיבובים</div>
+      </div>
+      <button class="btn btn-success btn-sm" onclick="showPage('game')">המשך →</button>
+    </div>`;
+  } else {
+    banner.innerHTML = '';
+  }
+
+  // Highlights
+  const hEl = document.getElementById('topHighlights');
+  const topPlayer = data.players.map(p => ({ ...p, ...pStats[p.id] })).sort((a, b) => b.total - a.total)[0];
+  const topTeam = data.teams.map(t => ({ ...t, ...tStats[t.id] })).sort((a, b) => b.total - a.total)[0];
+
+  let html = '';
+  if (topPlayer && topPlayer.total > 0) {
+    html += `<div class="highlight-box highlight-gold">
+      <div class="highlight-icon">🥇</div>
+      <div>
+        <div class="highlight-label">שחקן מוביל</div>
+        <div class="highlight-name">${esc(topPlayer.name)}</div>
+        <div class="highlight-score">${topPlayer.total} נקודות · ${topPlayer.games} משחקים</div>
+      </div>
+    </div>`;
+  }
+  if (topTeam && topTeam.total > 0) {
+    html += `<div class="highlight-box highlight-purple">
+      <div class="highlight-icon">🏆</div>
+      <div>
+        <div class="highlight-label">קבוצה מובילה</div>
+        <div class="highlight-name">${esc(topTeam.name)}</div>
+        <div class="highlight-score">${topTeam.total} נקודות · ${topTeam.games} משחקים</div>
+      </div>
+    </div>`;
+  }
+  hEl.innerHTML = html;
+
+  // Recent games
+  const rg = document.getElementById('recentGames');
+  if (!data.games.length) {
+    rg.innerHTML = '<div class="empty-state" style="padding:16px"><div class="empty-icon">🎮</div><p>עוד לא שוחקו משחקים</p></div>';
+  } else {
+    rg.innerHTML = data.games.slice(0, 3).map(g => {
+      const sorted = [...g.participants].sort((a, b) => (g.totals[b.id] || 0) - (g.totals[a.id] || 0));
+      const winner = sorted[0];
+      const date = new Date(g.finishedAt).toLocaleDateString('he-IL');
+      return `<div class="list-item">
+        <div class="avatar" style="background:${winner.color}">${winner.name[0]}</div>
+        <div class="list-item-info">
+          <div class="list-item-name">${esc(g.title)}</div>
+          <div class="list-item-sub">🏆 ${esc(winner.name)} (${g.totals[winner.id]}) · ${date}</div>
+        </div>
+        <span class="badge badge-primary">${g.rounds.length} סיבובים</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('tournamentSubtitle').textContent =
+    `${data.players.length} שחקנים · ${totalGames} משחקים`;
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function toggleCheckbox(el) {
+  el.classList.toggle('checked');
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+let confirmCallback = null;
+function showConfirm(title, msg, cb) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  confirmCallback = cb;
+  openModal('confirmModal');
+}
+document.getElementById('confirmOkBtn').onclick = () => {
+  closeModal('confirmModal');
+  if (confirmCallback) confirmCallback();
+};
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderColorSwatches('playerColorOptions', selectedPlayerColor, c => { selectedPlayerColor = c; });
+renderColorSwatches('teamColorOptions', selectedTeamColor, c => { selectedTeamColor = c; });
+renderColorSwatches('editPlayerColorOptions', editPlayerSelectedColor, c => { editPlayerSelectedColor = c; });
+renderColorSwatches('editTeamColorOptions', editTeamSelectedColor, c => { editTeamSelectedColor = c; });
+
+showPage('dashboard');
+
+// ============================================================
+// LIVE DISPLAY VIEW
+// ============================================================
+let displayMode = 'desktop'; // 'desktop' | 'mobile'
+
+function openDisplay() {
+  renderDisplay();
+  document.getElementById('displayOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDisplay() {
+  document.getElementById('displayOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function toggleDisplayMode() {
+  displayMode = displayMode === 'desktop' ? 'mobile' : 'desktop';
+  const btn    = document.getElementById('dvToggleBtn');
+  const icon   = document.getElementById('dvToggleIcon');
+  const label  = document.getElementById('dvToggleLabel');
+  const pill   = document.getElementById('modePillLabel');
+  const desk   = document.getElementById('dvDesktop');
+  const mob    = document.getElementById('dvMobile');
+
+  if (displayMode === 'mobile') {
+    desk.classList.remove('visible'); desk.style.display = 'none';
+    mob.classList.add('visible');     mob.style.display  = 'block';
+    icon.textContent  = '🖥️';
+    label.textContent = 'מעבר לדסקטופ';
+    pill.textContent  = 'נייד';
+    btn.classList.remove('active-mode');
+  } else {
+    mob.classList.remove('visible');  mob.style.display  = 'none';
+    desk.classList.add('visible');    desk.style.display = 'block';
+    icon.textContent  = '📱';
+    label.textContent = 'מעבר לנייד';
+    pill.textContent  = 'דסקטופ';
+    btn.classList.add('active-mode');
+  }
+  // re-render with animation
+  renderDisplay();
+}
+
+function renderDisplay() {
+  const data    = getData();
+  const pStats  = computePlayerStats(data);
+  const tStats  = computeTeamStats(data);
+
+  const players = data.players
+    .map(p => ({ ...p, ...pStats[p.id] }))
+    .sort((a, b) => b.total - a.total);
+
+  const teams = data.teams
+    .map(t => ({ ...t, ...tStats[t.id] }))
+    .sort((a, b) => b.total - a.total);
+
+  const topPlayer = players[0];
+  const topTeam   = teams[0];
+
+  // ---- TOP BANNER ----
+  function topBannerHTML() {
+    if (!topPlayer) return '';
+    return `<div class="dv-top-banner">
+      <div class="crown">👑</div>
+      <div class="tb-av" style="background:${topPlayer.color}">${topPlayer.name[0]}</div>
+      <div>
+        <div class="tb-label">מוביל הטורניר</div>
+        <div class="tb-name">${esc(topPlayer.name)}</div>
+        <div class="tb-score">${topPlayer.total} נקודות · ${topPlayer.games} משחקים</div>
+      </div>
+    </div>`;
+  }
+
+  // ---- DESKTOP ROWS ----
+  function desktopPlayerRows() {
+    if (!players.length) return '<div style="color:#444;text-align:center;padding:20px;font-size:0.85rem;">אין שחקנים</div>';
+    return players.map((p, i) => {
+      const rank = i + 1;
+      const pos  = rank <= 3 ? 'pos-' + rank : 'pos-other';
+      const avg  = p.games ? (p.total / p.games).toFixed(1) : '0';
+      return `<div class="dv-row ${pos}">
+        <div class="dv-rank">${rank}</div>
+        <div class="dv-av" style="background:${p.color}">${p.name[0]}</div>
+        <div class="dv-name">${esc(p.name)}</div>
+        <div>
+          <div class="dv-pts">${p.total}</div>
+          <div class="dv-meta">${p.games} משחקים · ⌀${avg}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function desktopTeamRows() {
+    if (!teams.length) return '<div style="color:#444;text-align:center;padding:20px;font-size:0.85rem;">אין קבוצות</div>';
+    return teams.map((t, i) => {
+      const rank = i + 1;
+      const pos  = rank <= 3 ? 'pos-' + rank : 'pos-other';
+      const avg  = t.games ? (t.total / t.games).toFixed(1) : '0';
+      return `<div class="dv-row ${pos}">
+        <div class="dv-rank">${rank}</div>
+        <div class="dv-av" style="background:${t.color}">${t.name[0]}</div>
+        <div class="dv-name">${esc(t.name)}</div>
+        <div>
+          <div class="dv-pts">${t.total}</div>
+          <div class="dv-meta">${t.games} משחקים · ⌀${avg}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ---- MOBILE ROWS ----
+  function mobileRows(list) {
+    if (!list.length) return '<div style="color:#444;text-align:center;padding:14px;font-size:0.82rem;">אין נתונים</div>';
+    return list.map((item, i) => {
+      const rank = i + 1;
+      const pos  = rank <= 3 ? 'pos-' + rank : 'pos-other';
+      const avg  = item.games ? (item.total / item.games).toFixed(1) : '0';
+      return `<div class="dv-mob-row ${pos}">
+        <div class="mob-rank">${rank}</div>
+        <div class="mob-av" style="background:${item.color}">${item.name[0]}</div>
+        <div>
+          <div class="mob-name">${rank === 1 ? '👑 ' : ''}${esc(item.name)}</div>
+          <div class="mob-meta">${item.games} משחקים · ⌀${avg}</div>
+        </div>
+        <div class="mob-pts">${item.total}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ---- TICKER ----
+  function tickerHTML() {
+    const all = [
+      ...players.map(p => `<span class="dv-ticker-item">👤 ${esc(p.name)} <span class="t-score">${p.total} נק'</span></span>`),
+      ...teams.map(t  => `<span class="dv-ticker-item">👥 ${esc(t.name)} <span class="t-score">${t.total} נק'</span></span>`),
+    ];
+    if (!all.length) return '<span class="dv-ticker-item">🃏 ONFLICK SHOW CASE · אין נתונים עדיין</span>';
+    // duplicate for seamless loop
+    const html = all.join('');
+    return html + html;
+  }
+
+  // ---- INJECT ----
+  document.getElementById('dvTopBannerDesktop').innerHTML = topBannerHTML();
+  document.getElementById('dvTopBannerMobile').innerHTML  = topBannerHTML();
+  document.getElementById('dvPlayerListDesktop').innerHTML = desktopPlayerRows();
+  document.getElementById('dvTeamListDesktop').innerHTML   = desktopTeamRows();
+  document.getElementById('dvPlayerListMobile').innerHTML  = mobileRows(players);
+  document.getElementById('dvTeamListMobile').innerHTML    = mobileRows(teams);
+  document.getElementById('dvTicker').innerHTML            = tickerHTML();
+
+  // Sync visible panel with current mode
+  const desk = document.getElementById('dvDesktop');
+  const mob  = document.getElementById('dvMobile');
+  if (displayMode === 'desktop') {
+    desk.style.display = 'block';
+    mob.style.display  = 'none';
+  } else {
+    desk.style.display = 'none';
+    mob.style.display  = 'block';
+  }
+}
+
+// Allow ESC to close display
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDisplay();
+});
+
+// ============================================================
+// THREE.JS — BASKETBALL ARENA BACKGROUND
+// ============================================================
+(function () {
+  if (typeof THREE === 'undefined') return;
+
+  // ── Renderer ───────────────────────────────────────────────
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000a14, 1);
+  const cvs = renderer.domElement;
+  cvs.id = 'threejs-bg';
+  document.body.insertBefore(cvs, document.body.firstChild);
+
+  // ── Scene ──────────────────────────────────────────────────
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x000a14, 0.014);
+
+  // ── Camera: broadcast angle looking down at court ──────────
+  const camera = new THREE.PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 200);
+  camera.position.set(0, 24, 34);
+  camera.lookAt(0, 0, -8);
+
+  // ── Lighting ───────────────────────────────────────────────
+  scene.add(new THREE.AmbientLight(0x001122, 0.7));
+  const spotOrange = new THREE.PointLight(0xff6600, 3.5, 80);
+  spotOrange.position.set(0, 18, 0);
+  scene.add(spotOrange);
+  const spotBlue = new THREE.PointLight(0x00aaff, 1.8, 60);
+  spotBlue.position.set(-25, 10, -20);
+  scene.add(spotBlue);
+  const spotBlue2 = new THREE.PointLight(0x0055ff, 1.2, 50);
+  spotBlue2.position.set(25, 10, -20);
+  scene.add(spotBlue2);
+
+  // ── Court line helpers ─────────────────────────────────────
+  const CY = -5;           // court floor Y
+  const ORANGE = 0xff6600;
+  const BLUE   = 0x00aaff;
+  const DBLUE  = 0x003366;
+
+  function ln(pts2d, col, op = 0.9, y = CY) {
+    const v = pts2d.map(([x,z]) => new THREE.Vector3(x, y, z));
+    const g = new THREE.BufferGeometry().setFromPoints(v);
+    const m = new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: op });
+    return new THREE.Line(g, m);
+  }
+
+  function arc(cx, cz, r, a0, a1, segs, col, op = 0.9, y = CY) {
+    const pts = [];
+    for (let i = 0; i <= segs; i++) {
+      const a = a0 + (a1 - a0) * i / segs;
+      pts.push([cx + Math.cos(a) * r, cz + Math.sin(a) * r]);
+    }
+    return ln(pts, col, op, y);
+  }
+
+  // ── Basketball Court ───────────────────────────────────────
+  const court = new THREE.Group();
+
+  // Court floor panel
+  const floorG = new THREE.PlaneGeometry(30, 17);
+  const floorM = new THREE.MeshBasicMaterial({ color: 0x010810, transparent: true, opacity: 0.75 });
+  const floorP = new THREE.Mesh(floorG, floorM);
+  floorP.rotation.x = -Math.PI / 2;
+  floorP.position.y = CY - 0.01;
+  scene.add(floorP);
+
+  // Outer boundary
+  court.add(ln([[-14,-7.5],[14,-7.5],[14,7.5],[-14,7.5],[-14,-7.5]], ORANGE, 0.95));
+  // Half-court line
+  court.add(ln([[0,-7.5],[0,7.5]], ORANGE, 0.55));
+  // Center circle
+  court.add(arc(0, 0, 1.8,  0, Math.PI*2, 72, ORANGE, 0.75));
+  // Center jump circle (small)
+  court.add(arc(0, 0, 0.45, 0, Math.PI*2, 32, ORANGE, 0.5));
+
+  // ── Left side ──────────────────────────────────────────────
+  // Key / paint
+  court.add(ln([[-14,-2.45],[-10.75,-2.45],[-10.75,2.45],[-14,2.45]], BLUE, 0.8));
+  // Free-throw circle (full)
+  court.add(arc(-10.75, 0, 1.8,  -Math.PI/2,  Math.PI/2, 48, BLUE, 0.55));
+  court.add(arc(-10.75, 0, 1.8,   Math.PI/2, Math.PI*1.5, 48, DBLUE, 0.3));
+  // Restricted arc
+  court.add(arc(-14 + 1.25, 0, 1.25, -Math.PI/2, Math.PI/2, 32, BLUE, 0.45));
+  // 3-point line
+  const ang3 = Math.asin(6.6 / 7.25);
+  court.add(arc(-14 + 1.575, 0, 7.25, -ang3, ang3, 90, ORANGE, 0.75));
+  const corner3x = -14 + 1.575 + 7.25 * Math.cos(ang3);
+  court.add(ln([[-14,-6.6],[corner3x,-6.6]], ORANGE, 0.75));
+  court.add(ln([[-14, 6.6],[corner3x, 6.6]], ORANGE, 0.75));
+
+  // ── Right side (mirrored) ──────────────────────────────────
+  court.add(ln([[14,-2.45],[10.75,-2.45],[10.75,2.45],[14,2.45]], BLUE, 0.8));
+  court.add(arc( 10.75, 0, 1.8,  Math.PI/2, Math.PI*1.5, 48, BLUE, 0.55));
+  court.add(arc( 10.75, 0, 1.8, -Math.PI/2,  Math.PI/2,  48, DBLUE, 0.3));
+  court.add(arc(  14 - 1.25, 0, 1.25, Math.PI/2, Math.PI*1.5, 32, BLUE, 0.45));
+  court.add(arc(  14 - 1.575, 0, 7.25, Math.PI - ang3, Math.PI + ang3, 90, ORANGE, 0.75));
+  court.add(ln([[14,-6.6],[ 14 - 1.575 - 7.25 * Math.cos(ang3),-6.6]], ORANGE, 0.75));
+  court.add(ln([[14, 6.6],[ 14 - 1.575 - 7.25 * Math.cos(ang3), 6.6]], ORANGE, 0.75));
+
+  scene.add(court);
+
+  // ── Hoops ──────────────────────────────────────────────────
+  function makeHoop(side) {
+    const g = new THREE.Group();
+    const bx = side * (14 - 1.575);  // basket x position
+    const hoopY = CY + 3.05;
+
+    // Rim (torus)
+    const rimG = new THREE.TorusGeometry(0.225, 0.015, 12, 52);
+    const rimM = new THREE.MeshBasicMaterial({ color: 0xff6600 });
+    const rim  = new THREE.Mesh(rimG, rimM);
+    rim.rotation.x = Math.PI / 2;
+    rim.position.set(bx, hoopY, 0);
+    g.add(rim);
+
+    // Backboard
+    const bbG = new THREE.PlaneGeometry(1.83, 1.07);
+    const bbM = new THREE.MeshBasicMaterial({ color: 0x001933, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
+    const bb  = new THREE.Mesh(bbG, bbM);
+    bb.position.set(side * 14, CY + 3.45, 0);
+    g.add(bb);
+
+    // Backboard outline
+    const bbL = ln([[-0.915,-0.535],[0.915,-0.535],[0.915,0.535],[-0.915,0.535],[-0.915,-0.535]], BLUE, 0.85, CY + 3.45);
+    bbL.position.x = side * 14;
+    g.add(bbL);
+
+    // Inner shooting box
+    const boxL = ln([[-0.305,-0.152],[0.305,-0.152],[0.305,0.152],[-0.305,0.152],[-0.305,-0.152]], ORANGE, 0.6, CY + 3.45);
+    boxL.position.x = side * 14;
+    g.add(boxL);
+
+    // Support arm (rim to backboard)
+    const armG = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(bx, hoopY, 0),
+      new THREE.Vector3(side * 14, CY + 3.45, 0)
+    ]);
+    g.add(new THREE.Line(armG, new THREE.LineBasicMaterial({ color: 0x334466, transparent: true, opacity: 0.5 })));
+
+    // Post
+    const postG = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(side * 14, CY, 0),
+      new THREE.Vector3(side * 14, CY + 3.6, 0)
+    ]);
+    g.add(new THREE.Line(postG, new THREE.LineBasicMaterial({ color: 0x224466, transparent: true, opacity: 0.4 })));
+
+    return g;
+  }
+
+  scene.add(makeHoop(-1));
+  scene.add(makeHoop(1));
+
+  // ── Floating Basketballs ───────────────────────────────────
+  const balls = [];
+
+  function makeBall(x, y, z, radius) {
+    const g = new THREE.Group();
+
+    // Wireframe sphere
+    const sG  = new THREE.SphereGeometry(radius, 12, 9);
+    const wfG = new THREE.WireframeGeometry(sG);
+    g.add(new THREE.LineSegments(wfG,
+      new THREE.LineBasicMaterial({ color: ORANGE, transparent: true, opacity: 0.5 })));
+
+    // Outer glow halo
+    const hG  = new THREE.SphereGeometry(radius * 1.18, 8, 6);
+    const hwG = new THREE.WireframeGeometry(hG);
+    g.add(new THREE.LineSegments(hwG,
+      new THREE.LineBasicMaterial({ color: 0xff3300, transparent: true, opacity: 0.1 })));
+
+    // Basketball seams — 3 great-circle curves
+    function seam(offX, offZ) {
+      const pts = [];
+      for (let i = 0; i <= 80; i++) {
+        const a  = (i / 80) * Math.PI * 2;
+        const bx = Math.cos(a) * radius;
+        const by = Math.sin(a) * radius * 0.92;
+        const bz = Math.sin(a * 2) * radius * 0.28;
+        pts.push(new THREE.Vector3(bx, by, bz));
+      }
+      const seg = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color: 0x551100, transparent: true, opacity: 0.9 })
+      );
+      seg.rotation.x = offX;
+      seg.rotation.z = offZ;
+      return seg;
+    }
+    g.add(seam(0, 0));
+    g.add(seam(0, Math.PI / 2));
+    g.add(seam(Math.PI / 3, Math.PI / 4));
+
+    g.position.set(x, y, z);
+    g.userData = {
+      rx: (Math.random() - 0.5) * 0.013,
+      ry: (Math.random() - 0.5) * 0.016,
+      rz: (Math.random() - 0.5) * 0.009,
+      baseY: y,
+      dT: Math.random() * Math.PI * 2,
+      dSpd: 0.007 + Math.random() * 0.007,
+      dAmp: 1.2 + Math.random() * 1.8,
+    };
+    scene.add(g);
+    balls.push(g);
+  }
+
+  makeBall(-20,  5, -32, 1.4);
+  makeBall( 18,  9, -42, 1.0);
+  makeBall(  0, 13, -18, 0.7);
+  makeBall( 26,  4, -28, 1.6);
+  makeBall(-10, 11, -50, 1.2);
+  makeBall(  8,  7, -22, 0.9);
+
+  // ── Arena Crowd Glow Rings ─────────────────────────────────
+  // Simulates the ring of arena lights seen from broadcast angle
+  function addGlowRing(y, r, col, op) {
+    const pts = [];
+    for (let i = 0; i <= 100; i++) {
+      const a = (i / 100) * Math.PI * 2;
+      pts.push(new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r));
+    }
+    const g = new THREE.BufferGeometry().setFromPoints(pts);
+    scene.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: op })));
+  }
+  addGlowRing(CY + 22, 28, ORANGE, 0.12);
+  addGlowRing(CY + 24, 32, ORANGE, 0.07);
+  addGlowRing(CY + 22, 20, BLUE,   0.08);
+
+  // ── Rafters / Arena structure lines ───────────────────────
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    const rx = Math.cos(a) * 30;
+    const rz = Math.sin(a) * 20;
+    const rG = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, CY + 28, 0),
+      new THREE.Vector3(rx, CY + 16, rz),
+    ]);
+    scene.add(new THREE.Line(rG,
+      new THREE.LineBasicMaterial({ color: 0x112233, transparent: true, opacity: 0.35 })));
+  }
+
+  // ── Spark Particles ────────────────────────────────────────
+  const SPARKS = 280;
+  const spkPos = new Float32Array(SPARKS * 3);
+  const spkCol = new Float32Array(SPARKS * 3);
+  const spkVel = new Float32Array(SPARKS);
+
+  for (let i = 0; i < SPARKS; i++) {
+    spkPos[i*3]   = (Math.random() - 0.5) * 70;
+    spkPos[i*3+1] = CY + Math.random() * 32;
+    spkPos[i*3+2] = -Math.random() * 90 - 5;
+    spkVel[i] = 0.025 + Math.random() * 0.06;
+    if (Math.random() > 0.45) {         // orange spark
+      spkCol[i*3] = 1.0; spkCol[i*3+1] = 0.38 + Math.random()*0.2; spkCol[i*3+2] = 0.0;
+    } else {                             // blue spark
+      spkCol[i*3] = 0.0; spkCol[i*3+1] = 0.5 + Math.random()*0.4; spkCol[i*3+2] = 1.0;
+    }
+  }
+  const spkGeo = new THREE.BufferGeometry();
+  spkGeo.setAttribute('position', new THREE.BufferAttribute(spkPos, 3));
+  spkGeo.setAttribute('color',    new THREE.BufferAttribute(spkCol, 3));
+  const sparks = new THREE.Points(spkGeo,
+    new THREE.PointsMaterial({ size: 0.14, vertexColors: true, transparent: true, opacity: 0.65 }));
+  scene.add(sparks);
+
+  // ── Scan beam (court-level sweep) ─────────────────────────
+  const beamG = new THREE.PlaneGeometry(35, 0.4);
+  const beamM = new THREE.MeshBasicMaterial({ color: ORANGE, transparent: true, opacity: 0.08, side: THREE.DoubleSide });
+  const beam  = new THREE.Mesh(beamG, beamM);
+  beam.rotation.x = -Math.PI / 2;
+  beam.position.set(0, CY + 0.1, -8);
+  scene.add(beam);
+
+  // ── Animation Loop ─────────────────────────────────────────
+  let t = 0;
+  let beamZ = -20;
+  let beamDz = 0.15;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.008;
+
+    // Camera gentle broadcast pan
+    camera.position.x = Math.sin(t * 0.12) * 6;
+    camera.position.y = 24 + Math.sin(t * 0.17) * 1.8;
+    camera.lookAt(0, 0, -8);
+
+    // Balls float and spin
+    for (const b of balls) {
+      b.rotation.x += b.userData.rx;
+      b.rotation.y += b.userData.ry;
+      b.rotation.z += b.userData.rz;
+      b.userData.dT += b.userData.dSpd;
+      b.position.y = b.userData.baseY + Math.sin(b.userData.dT) * b.userData.dAmp;
+    }
+
+    // Sparks rise, reset at top
+    const pos = spkGeo.attributes.position;
+    for (let i = 0; i < SPARKS; i++) {
+      pos.array[i*3+1] += spkVel[i];
+      if (pos.array[i*3+1] > CY + 34) {
+        pos.array[i*3+1] = CY;
+        pos.array[i*3]   = (Math.random() - 0.5) * 70;
+      }
+    }
+    pos.needsUpdate = true;
+
+    // Scan beam sweeps along Z
+    beamZ += beamDz;
+    if (beamZ > 10)  { beamZ = 10;  beamDz = -0.15; }
+    if (beamZ < -20) { beamZ = -20; beamDz =  0.15; }
+    beam.position.z = beamZ;
+    beamM.opacity = 0.04 + Math.abs(Math.sin(t * 0.6)) * 0.1;
+
+    // Pulse lights
+    spotOrange.intensity = 3.2 + Math.sin(t * 2.5) * 0.8;
+    spotBlue.intensity   = 1.6 + Math.sin(t * 1.9 + 1.2) * 0.5;
+
+    renderer.render(scene, camera);
+  }
+
+  window.addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+
+  animate();
+})();
+
+// ============================================================
+// 3D CARD FLIP ANIMATION
+// ============================================================
+const CARD_SUITS = ['🏀','🏀','🏀','🏀','🏀','🏀','🏀','🏀'];
+const CARD_VALS  = ['3','🔥','23','MVP','🏆','⚡','🎯','🥇'];
+
+function playCardFlipAnimation(onDone) {
+  const overlay = document.getElementById('cardFlipOverlay');
+  overlay.innerHTML = '';
+  overlay.style.display = 'block';
+
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+  const cx = W / 2;
+  const cy = H / 2;
+
+  const DIRECTIONS = [
+    [-220,-180], [0,-220], [220,-180], [300,-50],
+    [260, 160],  [0, 220], [-260,160], [-300,-50],
+  ];
+
+  CARD_SUITS.forEach((suit, i) => {
+    const card = document.createElement('div');
+    card.className = 'play-card';
+
+    const [dx, dy] = DIRECTIONS[i];
+    const rz  = ((Math.random() - 0.5) * 60).toFixed(1);
+    const rz2 = ((Math.random() - 0.5) * 180).toFixed(1);
+    const tx  = `calc(${cx + dx * 0.4}px - 27px)`;
+    const ty  = `calc(${cy + dy * 0.4}px - 40px)`;
+    const tx2 = `calc(${cx + dx}px - 27px)`;
+    const ty2 = `calc(${cy + dy}px - 40px)`;
+
+    card.style.cssText = `
+      left:${cx - 27}px; top:${cy - 40}px;
+      animation-delay:${i * 0.06}s;
+      --tx:${tx}; --ty:${ty};
+      --tx2:${tx2}; --ty2:${ty2};
+      --rz:${rz}deg; --rz2:${rz2}deg;
+    `;
+
+    card.innerHTML = `
+      <div class="play-card-face play-card-front">${suit}</div>
+      <div class="play-card-face play-card-back">${CARD_VALS[i]}</div>
+    `;
+    overlay.appendChild(card);
+  });
+
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    overlay.innerHTML = '';
+    if (onDone) onDone();
+  }, 1050);
+}
+
+// Wrap startGame to trigger card flip first
+const _originalStartGame = startGame;
+startGame = function () {
+  // Pre-validate participant count so we don't animate then reject
+  const selected = [...document.querySelectorAll('#participantList .checkbox-item.checked')];
+  if (selected.length < 2) { showToast('בחר לפחות 2 משתתפים'); return; }
+  playCardFlipAnimation(() => _originalStartGame());
+};
+</script>
+</body>
+</html>
